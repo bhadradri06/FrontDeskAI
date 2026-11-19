@@ -281,11 +281,29 @@ export function ClinicSettingsPage({ onNavigate }: ClinicSettingsPageProps) {
                 />
               </div>
               <div>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Landmark</label>
+                <input
+                  type="text"
+                  value={settingsForm.landmark}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, landmark: e.target.value })}
+                  className="w-full min-h-[42px] px-3 py-2 text-sm border border-slate-300 rounded-lg"
+                />
+              </div>
+              <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">Google Maps Link</label>
                 <input
                   type="text"
                   value={settingsForm.maps_link}
                   onChange={(e) => setSettingsForm({ ...settingsForm, maps_link: e.target.value })}
+                  className="w-full min-h-[42px] px-3 py-2 text-sm border border-slate-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Parking Details</label>
+                <input
+                  type="text"
+                  value={settingsForm.parking}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, parking: e.target.value })}
                   className="w-full min-h-[42px] px-3 py-2 text-sm border border-slate-300 rounded-lg"
                 />
               </div>
@@ -337,7 +355,7 @@ export function ClinicSettingsPage({ onNavigate }: ClinicSettingsPageProps) {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Opening Time (e.g. 10:00 AM)</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Opening Time (e.g. 09:00 AM)</label>
                 <input
                   type="text"
                   value={settingsForm.opening_time}
@@ -346,11 +364,38 @@ export function ClinicSettingsPage({ onNavigate }: ClinicSettingsPageProps) {
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-700 mb-1">Closing Time (e.g. 07:00 PM)</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Closing Time (e.g. 08:00 PM)</label>
                 <input
                   type="text"
                   value={settingsForm.closing_time}
                   onChange={(e) => setSettingsForm({ ...settingsForm, closing_time: e.target.value })}
+                  className="w-full min-h-[42px] px-3 py-2 text-sm border border-slate-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Sunday Hours</label>
+                <input
+                  type="text"
+                  value={settingsForm.sunday_hours}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, sunday_hours: e.target.value })}
+                  className="w-full min-h-[42px] px-3 py-2 text-sm border border-slate-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Lunch Break Note</label>
+                <input
+                  type="text"
+                  value={settingsForm.lunch_break}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, lunch_break: e.target.value })}
+                  className="w-full min-h-[42px] px-3 py-2 text-sm border border-slate-300 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-slate-700 mb-1">Public Holiday Policy</label>
+                <input
+                  type="text"
+                  value={settingsForm.public_holiday_note}
+                  onChange={(e) => setSettingsForm({ ...settingsForm, public_holiday_note: e.target.value })}
                   className="w-full min-h-[42px] px-3 py-2 text-sm border border-slate-300 rounded-lg"
                 />
               </div>

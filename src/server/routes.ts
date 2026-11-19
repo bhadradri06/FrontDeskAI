@@ -101,12 +101,17 @@ export function createApiRouter(db: DatabaseSync) {
       clinic_name: s.clinic_name,
       has_verified_name: isFilled(s.clinic_name),
       address: isFilled(s.address) ? s.address : null,
+      landmark: isFilled(s.landmark) ? s.landmark : null,
       maps_link: isFilled(s.maps_link) ? s.maps_link : null,
       phone: isFilled(s.phone) ? s.phone : null,
       whatsapp: isFilled(s.whatsapp) ? s.whatsapp : null,
       emergency_phone: isFilled(s.emergency_phone) ? s.emergency_phone : null,
+      parking: isFilled(s.parking) ? s.parking : null,
       opening_time: isFilled(s.opening_time) ? s.opening_time : null,
       closing_time: isFilled(s.closing_time) ? s.closing_time : null,
+      sunday_hours: isFilled(s.sunday_hours) ? s.sunday_hours : null,
+      lunch_break: isFilled(s.lunch_break) ? s.lunch_break : null,
+      public_holiday_note: isFilled(s.public_holiday_note) ? s.public_holiday_note : null,
       working_days: s.working_days,
       doctors: kb.doctors.map((d) => ({
         id: d.id,
@@ -388,14 +393,19 @@ export function createApiRouter(db: DatabaseSync) {
     const b = req.body || {};
     const clinic_name = sanitizeText(b.clinic_name ?? oldSettings.clinic_name, 140);
     const address = sanitizeText(b.address ?? oldSettings.address, 300);
+    const landmark = sanitizeText(b.landmark ?? oldSettings.landmark, 200);
     const maps_link = sanitizeText(b.maps_link ?? oldSettings.maps_link, 300);
     const phone = sanitizeText(b.phone ?? oldSettings.phone, 40);
     const whatsapp = sanitizeText(b.whatsapp ?? oldSettings.whatsapp, 40);
     const email = sanitizeText(b.email ?? oldSettings.email, 120);
     const emergency_phone = sanitizeText(b.emergency_phone ?? oldSettings.emergency_phone, 40);
+    const parking = sanitizeText(b.parking ?? oldSettings.parking, 200);
     const working_days = Array.isArray(b.working_days) ? b.working_days.map((d: unknown) => sanitizeText(d, 20)) : oldSettings.working_days;
     const opening_time = sanitizeText(b.opening_time ?? oldSettings.opening_time, 30);
     const closing_time = sanitizeText(b.closing_time ?? oldSettings.closing_time, 30);
+    const sunday_hours = sanitizeText(b.sunday_hours ?? oldSettings.sunday_hours, 120);
+    const lunch_break = sanitizeText(b.lunch_break ?? oldSettings.lunch_break, 160);
+    const public_holiday_note = sanitizeText(b.public_holiday_note ?? oldSettings.public_holiday_note, 120);
     const holidays = Array.isArray(b.holidays) ? b.holidays.map((h: unknown) => sanitizeText(h, 20)).filter(Boolean) : oldSettings.holidays;
     const retention_days = Math.max(7, Math.min(3650, Number(b.retention_days ?? oldSettings.retention_days) || 90));
 
@@ -406,21 +416,26 @@ export function createApiRouter(db: DatabaseSync) {
     const now = getNowIso();
     db.prepare(`
       UPDATE clinic_settings
-      SET clinic_name = ?, address = ?, maps_link = ?, phone = ?, whatsapp = ?, email = ?, emergency_phone = ?,
-          working_days_json = ?, opening_time = ?, closing_time = ?, holidays_json = ?, retention_days = ?,
-          updated_by = ?, updated_at = ?
+      SET clinic_name = ?, address = ?, landmark = ?, maps_link = ?, phone = ?, whatsapp = ?, email = ?, emergency_phone = ?, parking = ?,
+          working_days_json = ?, opening_time = ?, closing_time = ?, sunday_hours = ?, lunch_break = ?, public_holiday_note = ?,
+          holidays_json = ?, retention_days = ?, updated_by = ?, updated_at = ?
       WHERE id = 1
     `).run(
       clinic_name,
       address,
+      landmark,
       maps_link,
       phone,
       whatsapp,
       email,
       emergency_phone,
+      parking,
       JSON.stringify(working_days),
       opening_time,
       closing_time,
+      sunday_hours,
+      lunch_break,
+      public_holiday_note,
       JSON.stringify(holidays),
       retention_days,
       req.staffUser!.full_name,

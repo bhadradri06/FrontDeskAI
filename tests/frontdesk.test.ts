@@ -30,13 +30,20 @@ function setupVerifiedClinicDb() {
     WHERE id = 1
   `).run(now);
 
-  // Add approved consultation fee, leaving Dental implants as FILL IN (missing!)
+  // Set Dental consultation fee to ₹500 and explicitly clear Dental implant pricing to test missing price escalation
   db.prepare(`
     UPDATE pricing
-    SET consultation_fee = '₹500', last_updated = ?, updated_by = 'Clinic Administrator'
-    WHERE service_name = 'Dental consultation'
+    SET consultation_fee = '₹500', treatment_price_range = 'FILL IN', additional_charges = 'FILL IN', last_updated = ?, updated_by = 'Clinic Administrator'
+    WHERE service_name IN ('Consultation', 'Dental consultation')
   `).run(now);
 
+  db.prepare(`
+    UPDATE pricing
+    SET consultation_fee = 'FILL IN', treatment_price_range = 'FILL IN', additional_charges = 'FILL IN', last_updated = ?, updated_by = 'Clinic Administrator'
+    WHERE service_name IN ('Dental implant', 'Dental implants')
+  `).run(now);
+
+  db.prepare('DELETE FROM doctors').run();
   db.prepare(`
     INSERT INTO doctors (name, qualifications, specialisation, experience, available_days, consultation_hours, is_active, updated_at)
     VALUES ('Dr. Ananya Rao', 'MDS (Prosthodontics)', 'Prosthodontics & Restorative Dentistry', '12 years', 'Mon-Sat', '10:00 AM - 06:00 PM', 1, ?)
@@ -197,7 +204,7 @@ test('Test 9: Clinic data update invalidates cached answer while preserving hist
 
   // Admin updates consultation fee from ₹500 to ₹700 and invalidates cache
   db.prepare(`
-    UPDATE pricing SET consultation_fee = '₹700', last_updated = ? WHERE service_name = 'Dental consultation'
+    UPDATE pricing SET consultation_fee = '₹700', last_updated = ? WHERE service_name IN ('Consultation', 'Dental consultation')
   `).run('2026-11-19T06:00:00.000Z');
   const newVer = invalidateKbCache(db, 'Clinic Administrator');
   assert.ok(newVer >= 2);
@@ -322,4 +329,76 @@ test('Test 14: Mobile 375px layout CSS invariants & viewport meta present', () =
   const indexCss = fs.readFileSync(path.resolve(process.cwd(), 'src/index.css'), 'utf8');
   assert.match(indexHtml, /name="viewport" content="width=device-width, initial-scale=1\.0"/);
   assert.match(indexCss, /overflow-x:\s*hidden/);
+});
+
+test('Test 15: Attached Bright Roots Dental JSON seeds doctors, pricing, parking, insurance, and escalates unquoted crown cost', async () => {
+  setAiEngineTestOptions({ apiKey: '' });
+  const db = createDatabase(':memory:');
+
+  const timings = await processPatientMessage(db, { message: 'What are your clinic timings?' });
+  assert.match(timings.replyMessage.body, /9:00 am/i);
+  assert.match(timings.replyMessage.body, /8:00 pm/i);
+  assert.match(timings.replyMessage.body, /1:30 pm to 2:30 pm/i);
+
+  const parking = await processPatientMessage(db, { message: 'Is basement parking available?' });
+  assert.match(parking.replyMessage.body, /Free parking in the basement/i);
+  assert.equal(parking.replyMessage.source_label, 'Answered from the clinic file');
+
+  const docs = await processPatientMessage(db, { message: 'Who are your doctors?' });
+  assert.match(docs.replyMessage.body, /Dr\. Meera Nair/);
+  assert.match(docs.replyMessage.body, /Dr\. Imran Qureshi/);
+  assert.match(docs.replyMessage.body, /Dr\. Sneha Rao/);
+
+  const implant = await processPatientMessage(db, { message: 'How much does a dental implant cost?' });
+  assert.match(implant.replyMessage.body, /Rs 28,000 per tooth/);
+
+  const crown = await processPatientMessage(db, { message: 'How much does a crown cost?' });
+  assert.ok(crown.ticket);
+  assert.equal(crown.ticket?.status, 'NEEDS_HUMAN');
+  setAiEngineTestOptions(null);
+});
+
+test('Test 16: Attached sample-questions_74b62685.json scenarios all pass against Bright Roots Dental KB', async () => {
+  setAiEngineTestOptions({ apiKey: '' });
+  const db = createDatabase(':memory:');
+
+  const questionsPath = path.resolve(process.cwd(), 'public/assets/aistudio/sample-questions_74b62685.json');
+  const cases = JSON.parse(fs.readFileSync(questionsPath, 'utf8')) as Array<{
+    q: string;
+    expect: string;
+    must_include?: string[];
+    must_not_include?: string[];
+    status?: string;
+  }>;
+
+  for (const c of cases) {
+    const res = await processPatientMessage(db, { message: c.q });
+    const bodyLower = res.replyMessage.body.toLowerCase();
+
+    if (c.must_include) {
+      for (const term of c.must_include) {
+        assert.ok(
+          bodyLower.includes(term.toLowerCase()),
+          `Expected "${c.q}" response to include "${term}", got: ${res.replyMessage.body}`
+        );
+      }
+    }
+
+    if (c.must_not_include) {
+      for (const term of c.must_not_include) {
+        assert.ok(
+          !bodyLower.includes(term.toLowerCase()),
+          `Expected "${c.q}" response NOT to include "${term}", got: ${res.replyMessage.body}`
+        );
+      }
+    }
+
+    if (c.status) {
+      const normalizedStatus = c.status.toUpperCase().replace(/\s+/g, '_');
+      assert.ok(res.ticket, `Expected ticket to be created for "${c.q}"`);
+      assert.equal(res.ticket?.status, normalizedStatus, `Expected ticket status ${normalizedStatus} for "${c.q}"`);
+    }
+  }
+
+  setAiEngineTestOptions(null);
 });

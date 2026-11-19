@@ -73,6 +73,10 @@ export function detectEmergency(text: string): boolean {
     /heavy\s+bleeding/i,
     /bleeding\s+won'?t\s+stop/i,
     /severe\s+facial\s+swelling/i,
+    /face\s+(is\s+)?swelling/i,
+    /neck\s+(is\s+)?swelling/i,
+    /swelling\s+of\s+the\s+(face|neck)/i,
+    /face\s+or\s+neck\s+swelling/i,
     /serious\s+facial/i,
     /jaw\s+injury/i,
     /broken\s+jaw/i,
@@ -85,7 +89,7 @@ export function detectEmergency(text: string): boolean {
     /निगलने\s*में\s*(तकलीफ|दिक्कत)/,
     /बेहोश/,
     /ज्यादा\s*खून|लगातार\s*खून/,
-    /चेहरे\s*पर\s*(गंभीर|बहुत)\s*सूजन/,
+    /चेहरे\s*(या\s*गले\s*)?पर\s*(गंभीर|बहुत)?\s*सूजन/,
     /saans\s+lene\s+mein\s+(takleef|dikkat)/i,
     /behosh/i,
     // Telugu & Tenglish
@@ -103,6 +107,8 @@ export function detectMedicalSymptoms(text: string): boolean {
   const lower = text.toLowerCase();
   const patterns: RegExp[] = [
     /\btooth\s*pain\b/i,
+    /\btooth\s*hurts?\b/i,
+    /\bteeth\s*hurt/i,
     /\btoothache\b/i,
     /\bswollen\s*gums?\b/i,
     /\bbleeding\s*gums?\b/i,
@@ -180,41 +186,38 @@ export function getEmergencyMessage(lang: SupportedLanguage, kb: ApprovedKnowled
   const clinicPhone = isFilled(kb.settings.phone) ? kb.settings.phone : null;
 
   if (lang === 'hi') {
-    const clinicLine = emergencyPhone
-      ? `\n\nक्लिनिक आपातकालीन संपर्क नंबर: ${emergencyPhone}`
+    const firstLine = emergencyPhone
+      ? `क्लिनिक आपातकालीन संपर्क नंबर: ${emergencyPhone}\n\n`
       : clinicPhone
-        ? `\n\nक्लिनिक फोन नंबर: ${clinicPhone}`
+        ? `क्लिनिक फोन नंबर: ${clinicPhone}\n\n`
         : '';
     return (
-      `आपातकालीन चेतावनी: इसके लिए तुरंत चिकित्सा सहायता की आवश्यकता हो सकती है। कृपया भारत में तुरंत 112 पर आपातकालीन सेवाओं से संपर्क करें या निकटतम इमरजेंसी विभाग में जाएं। चैट उत्तर की प्रतीक्षा न करें।` +
-      clinicLine +
-      `\n\n(हमारी क्लिनिक टीम को URGENT अलर्ट भेज दिया गया है, लेकिन कृपया इसे आपातकालीन चिकित्सा देखभाल का विकल्प न मानें।)`
+      firstLine +
+      `आपातकालीन चेतावनी: इसके लिए तुरंत चिकित्सा सहायता की आवश्यकता हो सकती है। कृपया भारत में तुरंत 112 पर आपातकालीन सेवाओं से संपर्क करें या निकटतम अस्पताल के इमरजेंसी विभाग में जाएं। चैट उत्तर की प्रतीक्षा न करें।\n\n(हमारी क्लिनिक टीम को URGENT अलर्ट भेज दिया गया है, लेकिन कृपया इसे आपातकालीन चिकित्सा देखभाल का विकल्प न मानें।)`
     );
   }
 
   if (lang === 'te') {
-    const clinicLine = emergencyPhone
-      ? `\n\nక్లినిక్ అత్యవసర నంబర్: ${emergencyPhone}`
+    const firstLine = emergencyPhone
+      ? `క్లినిక్ అత్యవసర నంబర్: ${emergencyPhone}\n\n`
       : clinicPhone
-        ? `\n\nక్లినిక్ ఫోన్ నంబర్: ${clinicPhone}`
+        ? `క్లినిక్ ఫోన్ నంబర్: ${clinicPhone}\n\n`
         : '';
     return (
-      `అత్యవసర హెచ్చరిక: దీనికి తక్షణ వైద్య సహాయం అవసరం కావచ్చు. దయచేసి భారతదేశంలో వెంటనే 112 అత్యవసర సేవలకు కాల్ చేయండి లేదా సమీపంలోని ఎమర్జెన్సీ విభాగానికి వెళ్ళండి. చాట్ సమాధానం కోసం వేచి ఉండకండి.` +
-      clinicLine +
-      `\n\n(మా క్లినిక్ సిబ్బందికి URGENT అలర్ట్ పంపబడింది, కానీ ఇది అత్యవసర వైద్య చికిత్సకు ప్రత్యామ్నాయం కాదు.)`
+      firstLine +
+      `అత్యవసర హెచ్చరిక: దీనికి తక్షణ వైద్య సహాయం అవసరం కావచ్చు. దయచేసి భారతదేశంలో వెంటనే 112 అత్యవసర సేవలకు కాల్ చేయండి లేదా సమీపంలోని ఆసుపత్రి ఎమర్జెన్సీ విభాగానికి వెళ్ళండి. చాట్ సమాధానం కోసం వేచి ఉండకండి.\n\n(మా క్లినిక్ సిబ్బందికి URGENT అలర్ట్ పంపబడింది, కానీ ఇది అత్యవసర వైద్య చికిత్సకు ప్రత్యామ్నాయం కాదు.)`
     );
   }
 
-  const clinicLine = emergencyPhone
-    ? `\n\nVerified clinic emergency contact: ${emergencyPhone}`
+  const firstLine = emergencyPhone
+    ? `Verified clinic emergency contact: ${emergencyPhone}\n\n`
     : clinicPhone
-      ? `\n\nClinic phone number: ${clinicPhone}`
+      ? `Clinic phone number: ${clinicPhone}\n\n`
       : '';
 
   return (
-    `This may require immediate medical attention. Please contact emergency services on 112 in India or go to the nearest emergency department immediately. Do not wait for a chat response.` +
-    clinicLine +
-    `\n\nAn URGENT alert has been flagged for our clinic staff, though a clinic ticket is not a substitute for emergency medical care.`
+    firstLine +
+    `This may require immediate medical attention. Please contact emergency services on 112 in India or go to the nearest emergency department immediately. Do not wait for a chat response.\n\nAn URGENT alert has been flagged for our clinic staff, though a clinic ticket is not a substitute for emergency medical care.`
   );
 }
 
@@ -307,14 +310,15 @@ export function validateAiOutput(replyText: string, kb: ApprovedKnowledgeBase): 
     return { valid: false, reason: 'Unauthorized discount offer' };
   }
 
-  // Check currency amounts mentioned by AI against approved pricing strings
-  const kbPricingText = kb.pricing
-    .map((p) => `${p.consultation_fee} ${p.treatment_price_range} ${p.additional_charges}`)
-    .join(' ');
+  // Check currency amounts mentioned by AI against approved pricing & policy strings
+  const kbMonetaryText = [
+    ...kb.pricing.map((p) => `${p.consultation_fee} ${p.treatment_price_range} ${p.additional_charges}`),
+    ...kb.policies.map((pol) => pol.content),
+  ].join(' ');
   const currencyMatches = replyText.match(/(?:₹|Rs\.?|INR)\s*([\d,]+)/gi) || [];
   for (const match of currencyMatches) {
     const digits = match.replace(/[^\d]/g, '');
-    if (digits && !kbPricingText.replace(/,/g, '').includes(digits)) {
+    if (digits && !kbMonetaryText.replace(/,/g, '').includes(digits)) {
       return { valid: false, reason: `Unverified price figure ${match} not found in clinic KB` };
     }
   }

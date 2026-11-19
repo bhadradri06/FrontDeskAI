@@ -488,16 +488,28 @@ export function PatientChatPage() {
                       ? `${clinicInfo.working_days.join(', ')} · ${clinicInfo.opening_time} – ${clinicInfo.closing_time}`
                       : 'Pending clinic verification (ask reception)'}
                   </p>
+                  {clinicInfo?.sunday_hours && (
+                    <p className="text-slate-500 mt-0.5">Sun: {clinicInfo.sunday_hours}</p>
+                  )}
+                  {clinicInfo?.lunch_break && (
+                    <p className="text-slate-500 mt-0.5">Lunch: {clinicInfo.lunch_break}</p>
+                  )}
                 </div>
               </div>
 
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-blue-700 shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-medium text-slate-900">Location</p>
+                  <p className="font-medium text-slate-900">Location & Parking</p>
                   <p className="text-slate-600 mt-0.5">
                     {clinicInfo?.address || 'Banjara Hills, Hyderabad (exact address pending)'}
                   </p>
+                  {clinicInfo?.landmark && (
+                    <p className="text-slate-500 mt-0.5">{clinicInfo.landmark}</p>
+                  )}
+                  {clinicInfo?.parking && (
+                    <p className="text-slate-500 mt-0.5">{clinicInfo.parking}</p>
+                  )}
                   {clinicInfo?.maps_link && (
                     <a
                       href={clinicInfo.maps_link}
@@ -518,6 +530,9 @@ export function PatientChatPage() {
                   <p className="text-slate-600 mt-0.5 tabular-nums">
                     {clinicInfo?.phone ? `Desk: ${clinicInfo.phone}` : 'Phone pending verification'}
                   </p>
+                  {clinicInfo?.whatsapp && (
+                    <p className="text-slate-600 mt-0.5 tabular-nums">WhatsApp: {clinicInfo.whatsapp}</p>
+                  )}
                   {clinicInfo?.emergency_phone && (
                     <p className="text-red-700 font-medium mt-0.5 tabular-nums">
                       Emergency: {clinicInfo.emergency_phone}

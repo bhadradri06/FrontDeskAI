@@ -16,7 +16,6 @@ export function isFilled(value: string | null | undefined): boolean {
   if (!trimmed) return false;
   const upper = trimmed.toUpperCase();
   if (upper === 'FILL IN' || upper.startsWith('FILL IN,') || upper.startsWith('FILL IN ')) {
-    // Special case: "FILL IN Dental Clinic" or "FILL IN, Banjara Hills, Hyderabad" are placeholders
     return false;
   }
   return true;
@@ -28,14 +27,19 @@ export function getClinicSettings(db: DatabaseSync): ClinicSettings {
     id: Number(row.id),
     clinic_name: String(row.clinic_name),
     address: String(row.address),
+    landmark: String(row.landmark ?? 'FILL IN'),
     maps_link: String(row.maps_link),
     phone: String(row.phone),
     whatsapp: String(row.whatsapp),
     email: String(row.email),
     emergency_phone: String(row.emergency_phone),
+    parking: String(row.parking ?? 'FILL IN'),
     working_days: JSON.parse(String(row.working_days_json || '[]')) as string[],
     opening_time: String(row.opening_time),
     closing_time: String(row.closing_time),
+    sunday_hours: String(row.sunday_hours ?? 'FILL IN'),
+    lunch_break: String(row.lunch_break ?? 'FILL IN'),
+    public_holiday_note: String(row.public_holiday_note ?? 'FILL IN'),
     holidays: JSON.parse(String(row.holidays_json || '[]')) as string[],
     retention_days: Number(row.retention_days ?? 90),
     kb_version: Number(row.kb_version ?? 1),
@@ -122,11 +126,13 @@ export function getFullKnowledgeBaseRaw(db: DatabaseSync): ApprovedKnowledgeBase
   };
   checkSetting('Clinic Name', settings.clinic_name);
   checkSetting('Full Address', settings.address);
+  checkSetting('Landmark', settings.landmark);
   checkSetting('Google Maps Link', settings.maps_link);
   checkSetting('Phone Number', settings.phone);
   checkSetting('WhatsApp Number', settings.whatsapp);
   checkSetting('Email Address', settings.email);
   checkSetting('Emergency Contact Phone', settings.emergency_phone);
+  checkSetting('Parking Info', settings.parking);
   checkSetting('Opening Time', settings.opening_time);
   checkSetting('Closing Time', settings.closing_time);
 
@@ -169,9 +175,6 @@ export function getFullKnowledgeBaseRaw(db: DatabaseSync): ApprovedKnowledgeBase
   return { settings, doctors, services, pricing, insurance, policies, missingChecklist };
 }
 
-/**
- * Returns ONLY verified, non-placeholder clinic knowledge for the AI & Fallback engines.
- */
 export function getApprovedKnowledgeBase(db: DatabaseSync): ApprovedKnowledgeBase {
   const raw = getFullKnowledgeBaseRaw(db);
   return {

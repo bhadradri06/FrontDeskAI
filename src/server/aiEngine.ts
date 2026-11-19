@@ -34,14 +34,19 @@ function buildSanitizedKbPromptContext(kb: ApprovedKnowledgeBase): string {
   const clinicInfo = {
     clinic_name: isFilled(s.clinic_name) ? s.clinic_name : 'UNCONFIRMED',
     address: isFilled(s.address) ? s.address : 'UNCONFIRMED',
+    landmark: isFilled(s.landmark) ? s.landmark : 'UNCONFIRMED',
     maps_link: isFilled(s.maps_link) ? s.maps_link : 'UNCONFIRMED',
     phone: isFilled(s.phone) ? s.phone : 'UNCONFIRMED',
     whatsapp: isFilled(s.whatsapp) ? s.whatsapp : 'UNCONFIRMED',
     email: isFilled(s.email) ? s.email : 'UNCONFIRMED',
     emergency_phone: isFilled(s.emergency_phone) ? s.emergency_phone : 'UNCONFIRMED',
+    parking: isFilled(s.parking) ? s.parking : 'UNCONFIRMED',
     working_days: s.working_days,
     opening_time: isFilled(s.opening_time) ? s.opening_time : 'UNCONFIRMED',
     closing_time: isFilled(s.closing_time) ? s.closing_time : 'UNCONFIRMED',
+    sunday_hours: isFilled(s.sunday_hours) ? s.sunday_hours : 'UNCONFIRMED',
+    lunch_break: isFilled(s.lunch_break) ? s.lunch_break : 'UNCONFIRMED',
+    public_holiday_note: isFilled(s.public_holiday_note) ? s.public_holiday_note : 'UNCONFIRMED',
     holidays: s.holidays,
   };
 
