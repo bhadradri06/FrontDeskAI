@@ -1,0 +1,8 @@
+{
+  "name": "FrontDesk AI",
+  "description": "AI dental clinic receptionist, safety triage, ticket management, and multilingual patient support for Banjara Hills, Hyderabad.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
